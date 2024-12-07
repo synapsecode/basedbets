@@ -16,7 +16,7 @@ const platformClientPVK = "0x5d31428d5148b74b22152750f7295b8f5ac5edb7c15f617d3b1
 // const RPC = "https://polygon-amoy.g.alchemy.com/v2/Q9_DTST1PIaTKcaPjvkURoBlR8gq8omM";
 //============POLYGON==============
 
-//ChETHFund's own private client
+//BasedBet's own private client
 const platformClient = new ViemClient({
     walletClient: createWalletClient({
         account: privateKeyToAccount(platformClientPVK),
@@ -46,6 +46,40 @@ export class BasedBetsInterface {
                 transport: custom(ethereum),
             }),
         })
+    }
+
+    static createBasedBet = async ({ client, treasury }) => {
+        const factory = ViemContract.fromCompiledContract({ compiledContract: BasedBetsJSON });
+        factory.connect({ client: client });
+        const { hash: deploymentHash, contract } = await factory.deploy({
+            params: [treasury],
+        });
+        contract.connect({ client: platformClient })
+        console.log('DEPLOYED_CONTRACT_HASH', deploymentHash);
+        return contract;
+    }
+
+    static getBalance = async ({ basedbet }) => {
+        basedbet.connect({ client: platformClient });
+        const cfbal = await contract.read({ method: 'getBalance' });
+        return Number(formatEther(cfbal))
+    }
+
+    static placeBet = async ({ basedbet, client, amount }) => {
+        basedbet.connect({ client });
+        await basedbet.write({
+            method: 'placeBet',
+            valueInEth: String(amount),
+        });
+        basedbet.connect({ client: platformClient });
+    }
+
+    static settleBet = async ({ basedbet }) => {
+        basedbet.connect({ platformClient });
+        await contract.write({
+            method: 'settle',
+        });
+        basedbet.connect({ client: platformClient });
     }
 
     /*
