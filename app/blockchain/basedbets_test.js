@@ -5,7 +5,7 @@ import { ViemClient, ViemContract } from "./viemc";
 // import StorageJSON from "./contracts/Storage.json";
 import { BasedBetsInterface } from "./basedbets_interface";
 
-const API_URL = "https://ba40-14-195-142-82.ngrok-free.app"
+const API_URL = "https://1805-14-195-142-82.ngrok-free.app"
 
 export async function basedbets_e2e({ treasury }) {
 
@@ -32,8 +32,8 @@ export async function basedbets_e2e({ treasury }) {
     // --------------------- Account Setup ---------------------------  
 
     //--------------------Deploy the Contract-------------------------
-    const basedbet = await BasedBetsInterface.createBasedBet({ treasury });
-    console.log('DEPLOYED_CONTRACT_ADDRESS', flashfund.contractAddress)
+    const basedbet = await BasedBetsInterface.createBasedBet({ client: memberClients.platform, treasury });
+    console.log('DEPLOYED_CONTRACT_ADDRESS', basedbet.contractAddress)
 
     const cfbal = await basedbet.read({ method: 'getBalance' });
     console.log('INITIAL_CONTRACT_BALANCE', formatEther(cfbal))
@@ -49,9 +49,9 @@ export async function basedbets_e2e({ treasury }) {
 
     // ----------- Buy Shares --------
     console.log('Buy Shares')
-    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.a, amount: 0.125 });
-    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.b, amount: 0.05 });
-    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.c, amount: 0.025 });
+    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.a, amount: 0.125, choice: 0 });
+    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.b, amount: 0.05, choice: 1 });
+    await BasedBetsInterface.placeBet({ basedbet, client: memberClients.c, amount: 0.025, choice: 1 });
 
     //--------------------Fetch their Balances again-------------------------
     const balanceA2 = await memberClients.a.getBalance({ mode: 'ether' });
@@ -64,7 +64,7 @@ export async function basedbets_e2e({ treasury }) {
     console.log('POST_DEPOSIT_CONTRACT_BALANCE:', formatEther(contractbal));
 
     //------------Loan Repayment-------
-    await BasedBetsInterface.settleBet({ basedbet });
+    await BasedBetsInterface.settleBet({ basedbet, choice: 0 });
 
     //--------------------Fetch their Balances again-------------------------
     const balanceA3 = await memberClients.a.getBalance({ mode: 'ether' });

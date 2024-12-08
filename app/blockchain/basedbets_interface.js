@@ -7,8 +7,8 @@ import { privateKeyToAccount } from "viem/accounts"
 //============GANACHE==============
 const CHAIN = ganache;
 // const RPC = process.env.NEXT_PUBLIC_API_URL;
-const RPC = "https://7289-163-47-210-29.ngrok-free.app"
-const platformClientPVK = "0x5d31428d5148b74b22152750f7295b8f5ac5edb7c15f617d3b1a29114b023dde"
+const RPC = "https://1805-14-195-142-82.ngrok-free.app"
+const platformClientPVK = "0x2c3f4e3858c1bade5edbfd770f9cb9fe121ffcaafe7b237d1c9d754ad4204949"
 //=================================
 
 //============POLYGON==============
@@ -65,19 +65,21 @@ export class BasedBetsInterface {
         return Number(formatEther(cfbal))
     }
 
-    static placeBet = async ({ basedbet, client, amount }) => {
+    static placeBet = async ({ basedbet, client, amount, choice }) => {
         basedbet.connect({ client });
         await basedbet.write({
             method: 'placeBet',
             valueInEth: String(amount),
+            params: [choice],
         });
         basedbet.connect({ client: platformClient });
     }
 
-    static settleBet = async ({ basedbet }) => {
-        basedbet.connect({ platformClient });
-        await contract.write({
+    static settleBet = async ({ basedbet, choice }) => {
+        basedbet.connect({ client: platformClient });
+        await basedbet.write({
             method: 'settle',
+            params: [choice],
         });
         basedbet.connect({ client: platformClient });
     }
